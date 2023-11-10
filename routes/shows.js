@@ -35,37 +35,55 @@ showRouter.get("/genres/:genre", async (req, res) => {
 //   }
 // );
 
-showRouter.put("/:id/watched", async (req, res) => {
-  const showToUpdate = await Show.findOne({
-    where: {
-      id: req.params.id,
-    },
-  });
-  const newRating = req.body.rating;
-  await showToUpdate.update({ rating: newRating });
-  const updatedMyShow = await Show.findOne({
-    where: {
-      id: req.params.id,
-    },
-  });
-  res.json(updatedMyShow);
-});
+showRouter.put(
+  "/:id/watched",
+  [check("rating").isNumeric()],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.json({ error: errors.array() });
+    } else {
+      const showToUpdate = await Show.findOne({
+        where: {
+          id: req.params.id,
+        },
+      });
+      const newRating = req.body.rating;
+      await showToUpdate.update({ rating: newRating });
+      const updatedMyShow = await Show.findOne({
+        where: {
+          id: req.params.id,
+        },
+      });
+      res.json(updatedMyShow);
+    }
+  }
+);
 
-showRouter.put("/:id/updates", async (req, res) => {
-  const showToUpdate = await Show.findOne({
-    where: {
-      id: req.params.id,
-    },
-  });
-  const newStatus = req.body.available;
-  await showToUpdate.update({ available: newStatus });
-  const updatedMyShow = await Show.findOne({
-    where: {
-      id: req.params.id,
-    },
-  });
-  res.json(updatedMyShow);
-});
+showRouter.put(
+  "/:id/updates",
+  [check("available").isBoolean()],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.json({ error: errors.array() });
+    } else {
+      const showToUpdate = await Show.findOne({
+        where: {
+          id: req.params.id,
+        },
+      });
+      const newStatus = req.body.available;
+      await showToUpdate.update({ available: newStatus });
+      const updatedMyShow = await Show.findOne({
+        where: {
+          id: req.params.id,
+        },
+      });
+      res.json(updatedMyShow);
+    }
+  }
+);
 
 showRouter.delete("/:id", async (req, res) => {
   const deletedShow = Show.destroy({ where: { id: req.params.id } });
